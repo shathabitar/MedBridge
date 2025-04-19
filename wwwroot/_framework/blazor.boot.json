@@ -1,10 +1,10 @@
 {
   "mainAssemblyName": "MedBridge",
   "resources": {
-    "hash": "sha256-b2+HbGNQbq7SM0WM3YsbDfOUyvuQ85NaXIgeypsRIJE=",
+    "hash": "sha256-JrGRulzAZkaLzwIAWKFaDwUrkRjlRrNXf2ta2Qi58Fc=",
     "fingerprinting": {
       "Blazored.LocalStorage.12n6dz54qr.wasm": "Blazored.LocalStorage.wasm",
-      "MedBridge.lnqvourxdi.wasm": "MedBridge.wasm",
+      "MedBridge.nlv1t1th2l.wasm": "MedBridge.wasm",
       "Microsoft.AspNetCore.Components.Forms.yro7n2ks67.wasm": "Microsoft.AspNetCore.Components.Forms.wasm",
       "Microsoft.AspNetCore.Components.QuickGrid.mon11fc160.wasm": "Microsoft.AspNetCore.Components.QuickGrid.wasm",
       "Microsoft.AspNetCore.Components.vhw3pvlr0d.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -80,7 +80,7 @@
     },
     "assembly": {
       "Blazored.LocalStorage.12n6dz54qr.wasm": "sha256-OaMAAd5n7ORfyur5e3QIyEVKJ76MKIvwbg7/icnnYcU=",
-      "MedBridge.lnqvourxdi.wasm": "sha256-TycBaO2CVg+fOLN15iLbdmmqozn8NK9940ZDlvcZii8=",
+      "MedBridge.nlv1t1th2l.wasm": "sha256-xbhPFZHH/kf3rpCR40TvoXr7YqPFKSoVekkJpjuTITQ=",
       "Microsoft.AspNetCore.Components.Forms.yro7n2ks67.wasm": "sha256-0odpWWEsu1W2VxGsRp3N61v4AlK9rfF8sNXtEz3YdQo=",
       "Microsoft.AspNetCore.Components.QuickGrid.mon11fc160.wasm": "sha256-JmuTej98snRaPmnkEpB7TBVT0nmOlJL0MpNwP2Jwgh8=",
       "Microsoft.AspNetCore.Components.vhw3pvlr0d.wasm": "sha256-Q2yu6Cr77V8H24VTg5qJ1FWlIIUncVUjTESxquT4cYQ=",
