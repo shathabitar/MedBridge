@@ -1,0 +1,109 @@
+@page "/profile"
+@inject IJSRuntime JS
+@using MedBridge.Model
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager _navigation
+
+<h1>Profile</h1>
+<h6 class="date">Today's Date: @currentDate</h6>
+
+@code {
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+}
+
+<div class="radio-inputs">
+    <label class="radio">
+        <input type="radio" name="radio" value="information" checked="" @onchange="SetSection" />
+        <span class="name">Information</span>
+    </label>
+    <label class="radio">
+        <input type="radio" name="radio" value="appointments" @onchange="SetSection" />
+        <span class="name">Appointments</span>
+    </label>
+    <label class="radio">
+        <input type="radio" name="radio" value="transfers" @onchange="SetSection" />
+        <span class="name">Transfers</span>
+    </label>
+</div>
+
+<div>
+    @if (SelectedSection == "information")
+    {
+        @if (patient != null)
+        {
+            <p>
+                ID: @patient.Id
+            </p>
+            <p>
+        Full Name: @patient.FirstName @patient.LastName
+    </p>
+            <p>
+        Date of Birth: @patient.DOB?.ToShortDateString()
+    </p>
+            <p>
+        Age: @(CalculateAge(patient.DOB))
+    </p>
+            <p>
+        Email: @patient.Email
+    </p>
+        }
+        else
+        {
+            <p>Please <a href="/login" class="RegisterRedirect">Login</a></p>
+        }
+    }
+
+    else if (SelectedSection == "appointments")
+    {
+
+        <AppointmentCards></AppointmentCards>
+
+    }
+    else if (SelectedSection == "transfers")
+    {
+        <TransferPage></TransferPage>
+    }
+</div>
+
+@code {
+    private string SelectedSection = "information";
+
+    private User? patient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var userId = await LocalStorage.GetItemAsync<string>("UserID");
+            patient = await JS.InvokeAsync<User>("getPatientById", userId);
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching patient data: {ex.Message}");
+        }
+    }
+
+    private void SetSection(ChangeEventArgs e)
+    {
+        SelectedSection = e.Value?.ToString();
+    }
+
+    private int CalculateAge(DateTime? dob)
+    {
+        if (dob == null)
+        {
+            return 0;
+        }
+
+        var today = DateTime.Today;
+        var age = today.Year - dob.Value.Year;
+
+        if (dob.Value.Date > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
+    }
+}

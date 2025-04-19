@@ -1,0 +1,152 @@
+@using MedBridge.Model
+@inject IJSRuntime JS
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+@if (transfer != null)
+{
+    <div class="transferinfo">
+    <h5>Transfer on @transfer.Date</h5>
+    <h5>Doctor: @name </h5>
+    <h5>Target: @target </h5>
+
+    <div class="input-flex-container">
+        @if (transfer.Status == TransferStatus.Requested)
+            {
+                <div class="inputt active">
+                    <span data-year="Requested"></span>
+                </div>
+            }
+            else
+            {
+                <div class="inputt">
+                    <span data-year="Requested"></span>
+                </div>
+            }
+
+            @if (transfer.Status == TransferStatus.Approved)
+            {
+                <div class="inputt active">
+                    <span data-year="Approved"></span>
+                </div>
+            }
+            else
+            {
+                <div class="inputt">
+                    <span data-year="Approved"></span>
+                </div>
+            }
+
+            @if (transfer.Status == TransferStatus.Booked)
+            {
+                <div class="inputt active">
+                    <span data-year="Appointment Booked"></span>
+                </div>
+            }
+            else
+            {
+                <div class="inputt">
+                    <span data-year="Appointment Booked"></span>
+                </div>
+            }
+
+            @if (transfer.Status == TransferStatus.Completed)
+            {
+                <div class="inputt active">
+                    <span data-year="Completed"></span>
+                </div>
+            }
+            else
+            {
+                <div class="inputt">
+                    <span data-year="Completed"></span>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p>No transfers found for this patient.</p>
+}
+
+@code {
+    private Transfer transfer;
+    private List<Hospital> hospitals;
+    private List<Doctors> doctors;
+    private string name = "Loading...";
+    private string target = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadEverything();
+            await FetchTransfer();
+
+            if (transfer != null)
+            {
+                SetDoctorName();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching patient data: {ex.Message}");
+        }
+    }
+
+    private async Task FetchTransfer()
+    {
+        var patientId = await LocalStorage.GetItemAsync<string>("UserID");
+        if (string.IsNullOrEmpty(patientId))
+        {
+            Console.WriteLine("Patient ID is missing or invalid.");
+            transfer = null;
+            return;
+        }
+
+        transfer = await JS.InvokeAsync<Transfer>("getTransferbyPatientId", patientId);
+
+        if (transfer == null)
+        {
+            Console.WriteLine($"No transfer found for patient ID: {patientId}");
+        }
+    }
+
+    private async Task LoadEverything()
+    {
+        doctors = await JS.InvokeAsync<List<Doctors>>("getDoctors");
+        hospitals = await JS.InvokeAsync<List<Hospital>>("getHospitals");
+
+        if (doctors == null || hospitals == null)
+        {
+            Console.WriteLine("Failed to load doctors or hospitals.");
+        }
+    }
+
+    private void SetDoctorName()
+    {
+        if (doctors == null || hospitals == null || transfer == null)
+        {
+            name = "Data not loaded";
+            target = "Data not loaded";
+            return;
+        }
+
+        if (transfer.OriginalDoctorId != null)
+        {
+            var doctor = doctors.FirstOrDefault(d => d.Id == transfer.OriginalDoctorId);
+            name = doctor != null ? $"{doctor.FirstName} {doctor.LastName}" : "Doctor not found";
+        }
+
+        if (transfer.DoctorId != null)
+        {
+            var doctor = doctors.FirstOrDefault(d => d.Id == transfer.DoctorId);
+            target = doctor != null ? $"Dr. {doctor.FirstName} {doctor.LastName}" : "Doctor not found";
+        }
+        else if (transfer.HospitalId != null)
+        {
+            var hospital = hospitals.FirstOrDefault(h => h.Id == transfer.HospitalId);
+            target = hospital != null ? hospital.HospitalName : "Hospital not found";
+        }
+    }
+}

@@ -1,0 +1,278 @@
+@page "/doctors/doctor/{id}"
+@using MedBridge.Model
+@using System.Globalization
+@inject NavigationManager _navigation
+@inject IJSRuntime JS
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<h1>Our Doctors</h1>
+<h6 class="date">Today's Date: @currentDate</h6>
+
+
+@code {
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+}
+
+
+<div class="col-md-6 text-end backbtn"><button @onclick="BackToList">
+        <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+            <path
+                d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+            </path>
+        </svg>
+        <span>Back</span>
+    </button>
+</div>
+
+@if (doctorModel == null)
+{
+    <h1>No details found</h1>
+}
+else
+{
+
+    <div class="doc-page">
+    <div class="doctor-img">
+        <img src="@doctorModel.Image">
+    </div>
+    <div class="doc-info">
+        <h2>
+            @doctorModel.FirstName @doctorModel.LastName
+        </h2>
+        <h5>@doctorModel.Specialty</h5>
+        <h5>@doctorModel.HospitalName</h5>
+        <div class="rating">
+            <input value="5" name="rating" id="star5" type="radio" />
+            <label title="5 stars" for="star5">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgOne">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgTwo">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <div class="ombre"></div>
+            </label>
+
+            <input value="4" name="rating" id="star4" type="radio" />
+            <label title="4 stars" for="star4">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgOne">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgTwo">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <div class="ombre"></div>
+            </label>
+
+            <input value="3" name="rating" id="star3" type="radio" />
+            <label title="3 stars" for="star3">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgOne">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgTwo">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <div class="ombre"></div>
+            </label>
+
+            <input value="2" name="rating" id="star2" type="radio" />
+            <label title="2 stars" for="star2">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgOne">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgTwo">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <div class="ombre"></div>
+            </label>
+
+            <input value="1" name="rating" id="star1" type="radio" />
+            <label title="1 star" for="star1">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgOne">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#000000" fill="none"
+                    viewBox="0 0 24 24" height="35" width="35" xmlns="http://www.w3.org/2000/svg" class="svgTwo">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                </svg>
+                <div class="ombre"></div>
+            </label>
+        </div>
+    </div>
+</div>
+}
+
+<div class="appointments">
+    <h4>Appointments</h4>
+
+    <div>
+        <input
+            class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            type="date" @bind="selectedDate" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+    </div>
+
+    @if (appointments != null && appointments.Any())
+    {
+        var filteredAppointments = appointments;
+
+        if (selectedDate != null)
+        {
+            filteredAppointments = appointments
+            .Where(a => a.AppointmentDate.Date == selectedDate.Value.Date)
+            .ToList();
+        }
+
+        var groupedAppointments = filteredAppointments
+        .GroupBy(a => a.AppointmentDate.Date)
+        .OrderBy(g => g.Key)
+        .Take(4);
+
+        foreach (var group in groupedAppointments)
+        {
+            var groupDate = group.First().AppointmentDate;
+
+            <h5>@groupDate.ToString("dddd, MMMM dd, yyyy"):</h5>
+
+            <ul>
+        @foreach (var appointment in group.OrderBy(a => a.AppointmentDate))
+                {
+                    <li style="all: unset;">
+                        <button class="apptscards" @onclick="() => bookAppt(doctorModel.Id, appointment.Id)"
+                            disabled="@(appointment.Booked ?? false)"
+                            style="opacity: @(appointment.Booked ?? false ? "0.5" : "1");">
+                            @appointment.AppointmentDate.ToString("h:mm tt")
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    }
+    else
+    {
+        <p>No appointments available.</p>
+    }
+
+
+</div>
+
+
+
+
+
+
+
+@code {
+    private DateTime? selectedDate = null;
+    private Doctors doctorModel;
+    private List<Appointments> appointments;
+
+    [Parameter]
+    public string Id { get; set; }
+    private Insurance? insurance;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        doctorModel = await JS.InvokeAsync<Doctors>("getDoctorById", Id);
+        await LoadAppointments();
+        Console.WriteLine(doctorModel.InsuranceId);
+    }
+    @* private async Task LoadInsurance()
+    {
+        if (doctorModel != null)
+        {
+            insurance = await JS.InvokeAsync<Insurance>("getInsuranceById", doctorModel.InsuranceId);
+        }
+        else
+        {
+            Console.WriteLine($"Insurance ID is null or doctorModel is null {doctorModel.InsuranceId}");
+        }
+    } *@
+    private async Task LoadAppointments()
+    {
+        try
+        {
+            var appointmentsData = await JS.InvokeAsync<List<Appointments>>("getAppointmentsByDoctorId", Id);
+
+            // Log the data to ensure it's being returned correctly
+            Console.WriteLine($"Appointments loaded: {appointmentsData.Count} appointments");
+
+            // Filter appointments: only show appointments after the current time and available ones
+            var now = DateTime.Now;
+
+            appointments = appointmentsData
+            .Where(a => a.AppointmentDate > now && !(a.Booked ?? false)) // Filter for future and available appointments
+            .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading appointments: {ex.Message}");
+        }
+    }
+
+
+    private void BackToList()
+    {
+        _navigation.NavigateTo("/doctors");
+    }
+
+
+    private async Task bookAppt(string docId, string apptId)
+    {
+        var selectedAppointment = appointments.FirstOrDefault(a => a.Id == apptId);
+
+        if (selectedAppointment == null)
+        {
+            Console.WriteLine("Appointment not found");
+            return;
+        }
+
+        if (selectedAppointment.Booked == true)
+        {
+            Console.WriteLine("Appointment is already booked");
+            return;
+        }
+
+        var userId = await LocalStorage.GetItemAsync<string>("UserID");
+        Console.WriteLine($"Retrieved UserID: {userId}");
+
+
+        selectedAppointment.PatientId = userId;
+        selectedAppointment.Booked = true;
+
+        await JS.InvokeVoidAsync("updateAppointment", selectedAppointment);
+
+        _navigation.NavigateTo($"/doctors/doctor/{Id}/history1");
+    }
+
+
+
+}

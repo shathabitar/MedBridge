@@ -1,0 +1,238 @@
+@page "/appointments"
+@using System.Globalization
+@inject IJSRuntime JS
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using MedBridge.Model
+
+<div>
+    @if (appointments != null && appointments.Any())
+    {
+        @foreach (var appointment in appointments)
+        {
+            @if(appointment.Booked == true){
+            var visit = visits?.FirstOrDefault(v => v.AppointmentId == appointment.Id);
+            var doctor = doctors?.FirstOrDefault(d => d.Id == appointment.DoctorId);
+            var isActive = appointment.AppointmentDate > DateTime.Today;
+
+            <div class="appt-card @(isActive ? "active" : "inactive")">
+                <div class="drinfo">
+                    <h4>Dr. @doctor?.FirstName @doctor?.LastName</h4>
+                    <label>@doctor?.Specialty</label>
+                    @if (visit?.Diagnosis != null)
+                    {
+                        <p>@visit?.Diagnosis</p>
+                    }
+                    else
+                    {
+                        <p>No diagnosis available</p>
+                    }
+                </div>
+                <div class="timeinfo">
+                    <p>@appointment.AppointmentDate.ToString("dddd, dd/MM/yyyy")</p>
+                    <h4>@appointment.AppointmentDate.ToString("hh:mm tt")</h4>
+                    <div class="cancelbtn">
+                        @if (isActive)
+                        {
+                            <button class="register-button cancel" @onclick="() => CancelAppointment(appointment)">Cancel</button>
+                            <button class="register-button" @onclick="() => OpenRescheduleModal(appointment)">Reschedule</button>
+                        }
+                        else
+                        {
+                            <button class="register-button" disabled>Inactive</button>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        }
+    }
+    else
+    {
+        <p>No appointments found.</p>
+    }
+</div>
+
+@if (showRescheduleModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h3>Choose a new appointment time</h3>
+
+            @if (appointments != null && appointments.Any())
+            {
+                var filteredAppointments = appointments.Where(a => a.Booked == false).ToList();
+
+                var groupedAppointments = filteredAppointments
+                .GroupBy(a => a.AppointmentDate.Date)
+                .OrderBy(g => g.Key);
+
+                foreach (var group in groupedAppointments)
+                {
+                    var groupDate = group.Key;
+
+                    <h5>@groupDate.ToString("dddd, MMMM dd, yyyy"):</h5>
+
+                    <ul>
+                        @foreach (var appointment in group.OrderBy(a => a.AppointmentDate))
+                        {
+                            <li style="all: unset;">
+                                <button class="apptscards" @onclick="() => ConfirmReschedule(appointment.Id)"
+                                    disabled="@(appointment.Booked ?? false)"
+                                    style="opacity: @(appointment.Booked ?? false ? "0.5" : "1");">
+                                    @appointment.AppointmentDate.ToString("h:mm tt")
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+            else
+            {
+                <p>No appointments available.</p>
+            }
+
+            <button class="register-button cancel" @onclick="CloseRescheduleModal">Cancel</button>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Appointments>? appointments;
+    private List<Visits>? visits;
+    private List<Doctors>? doctors;
+    private bool showRescheduleModal = false;
+    private string? appointmentToRescheduleId;
+    private DateTime newAppointmentDate = DateTime.Today;
+    private string newAppointmentTime = DateTime.Now.ToString("HH:mm");
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadVisits();
+            await LoadDoctors();
+            await LoadAppointments();
+            Console.WriteLine($"Loaded {appointments?.Count} appointments.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing data: {ex.Message}");
+        }
+    }
+
+    private async Task LoadDoctors()
+    {
+        try
+        {
+            doctors = await JS.InvokeAsync<List<Doctors>>("getDoctors");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading doctors: {ex.Message}");
+        }
+    }
+
+    private async Task LoadAppointments()
+    {
+        var patientId = await LocalStorage.GetItemAsync<string>("UserID");
+        try
+        {
+            appointments = await JS.InvokeAsync<List<Appointments>>("getAllAppointmentsByPatientId", patientId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading appointments: {ex.Message}");
+        }
+    }
+
+    private async Task LoadVisits()
+    {
+        var patientId = await LocalStorage.GetItemAsync<string>("UserID");
+        try
+        {
+            visits = await JS.InvokeAsync<List<Visits>>("getVisitByPatientId", patientId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading visits: {ex.Message}");
+        }
+    }
+
+    private void OpenRescheduleModal(Appointments appointment)
+    {
+        Console.WriteLine($"Opening reschedule modal for appointment: {appointment.Id}");
+        appointmentToRescheduleId = appointment.Id;
+        newAppointmentDate = appointment.AppointmentDate.Date;
+        newAppointmentTime = appointment.AppointmentDate.ToString("HH:mm");
+        showRescheduleModal = true;
+    }
+
+    private void CloseRescheduleModal()
+    {
+        showRescheduleModal = false;
+    }
+
+    private async Task CancelAppointment(Appointments appointment)
+    {
+        await Cancel(appointment.Id);
+    }
+
+    private async Task Cancel(string appointmentId)
+    {
+        var appointment = appointments.FirstOrDefault(a => a.Id == appointmentId);
+
+        if (appointment != null)
+        {
+            // Set the required fields properly
+            appointment.Booked = false;
+            @* appointment.PatientId = null;  // Clear PatientId to reflect cancellation *@
+
+            // Log the updated appointment data
+            Console.WriteLine($"Updated appointment: {appointment.Id}, Booked: {appointment.Booked}, PatientId: {appointment.PatientId}");
+
+            // Update the appointment
+            await JS.InvokeVoidAsync("updateAppointment", appointment);
+
+            // Optionally, reload appointments to update UI
+            await LoadAppointments();
+        }
+        else
+        {
+            Console.WriteLine("Appointment not found");
+        }
+    }
+
+    private async Task ConfirmReschedule(string newAppointmentId)
+    {
+        // Check if the selected appointment is available
+        var selectedAppointment = appointments.FirstOrDefault(a => a.Id == newAppointmentId);
+
+        if (selectedAppointment == null)
+        {
+            Console.WriteLine("Appointment not found");
+            return;
+        }
+
+        if (selectedAppointment.Booked == true)
+        {
+            Console.WriteLine("Appointment is already booked");
+            return;
+        }
+
+        var userId = await LocalStorage.GetItemAsync<string>("UserID");
+        Console.WriteLine($"Retrieved UserID: {userId}");
+
+        // Cancel the previous appointment
+        await Cancel(appointmentToRescheduleId);
+
+        // Update the selected appointment with the new user and mark it as booked
+        selectedAppointment.PatientId = userId;
+        selectedAppointment.Booked = true;
+
+        await JS.InvokeVoidAsync("updateAppointment", selectedAppointment);
+
+        // Reload appointments after rescheduling
+        await LoadAppointments();
+        CloseRescheduleModal();
+    }
+}

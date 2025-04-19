@@ -1,0 +1,109 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = MedBridge
+build_property.RootNamespace = MedBridge
+build_property.ProjectDir = /Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Layout/SearchBar.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L1NlYXJjaEJhci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Model/CRUDdoctors.razor]
+build_metadata.AdditionalFiles.TargetPath = TW9kZWwvQ1JVRGRvY3RvcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/AppointmentCards.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQXBwb2ludG1lbnRDYXJkcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/DoctorsCards.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRG9jdG9yc0NhcmRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Doctorss/DoctorDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRG9jdG9yc3MvRG9jdG9yRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Doctorss/DoctorsList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRG9jdG9yc3MvRG9jdG9yc0xpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/EachDoctorPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRWFjaERvY3RvclBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Logout.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTG9nb3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/SignUp.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lnblVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Symptoms1.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3ltcHRvbXMxLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Symptoms2.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3ltcHRvbXMyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Symptoms3.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3ltcHRvbXMzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/Symptoms4.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3ltcHRvbXM0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Pages/TransferPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJhbnNmZXJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-62ynqu0lg4
+
+[/Users/shath/Desktop/uni/third year/first semester/Application Development/dotnet/MedBridge/MedBridge/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-6eumgvh80m

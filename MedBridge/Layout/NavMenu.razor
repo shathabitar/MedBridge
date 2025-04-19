@@ -1,0 +1,58 @@
+﻿<div class="top-row navbar">
+    <div class="container-fluid">
+        <a href=""><img src="/Media/MedBridge.png" alt="MedBridge" style="height:80px; width: auto;" /></a>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <img width="30" height="30" src="https://img.icons8.com/sf-regular/48/707070/home.png" alt="home" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="doctors">
+                <img width="30" height="30" src="https://img.icons8.com/ios/50/707070/calendar--v1.png"
+                    alt="calendar--v1" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <img width="30" height="30" src="https://img.icons8.com/forma-thin/24/707070/user.png" alt="user" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="login">
+                <img width="30" height="30" src="https://img.icons8.com/dotty/80/707070/enter-2.png" alt="enter-2" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="register">
+                <img width="30" height="30" src="https://img.icons8.com/forma-thin/24/707070/add-user-male.png"
+                    alt="add-user-male" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="logout">
+                <img width="30" height="30" src="https://img.icons8.com/dotty/80/707070/exit.png" alt="exit" />
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="doctorss">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

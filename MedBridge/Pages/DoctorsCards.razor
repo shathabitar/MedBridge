@@ -1,0 +1,106 @@
+@page "/doctors/{name}"
+@page "/doctors"
+@using Microsoft.AspNetCore.WebUtilities
+@inject NavigationManager Navigation
+@inject NavigationManager _navigation
+@inject IJSRuntime JS
+@using MedBridge.Model
+
+<h1>Our Doctors</h1>
+<h6 class="date">Today's Date: @currentDate</h6>
+
+<img width="26" height="26" src="https://img.icons8.com/metro/26/121212/filter.png" alt="filter" class="imgfilter" />
+
+<div class="doctors-list">
+    @if (FilteredDoctors != null && FilteredDoctors.Any())
+    {
+        @foreach (var doctor in FilteredDoctors)
+        {
+            <div class="doctors-container">
+                <div class="card carddoc" style="width: 18rem;">
+                    <img src="@doctor.Image" class="card-img-top" alt="Doctor image" />
+                    <div class="card-body">
+                        <h5 class="card-title">@doctor.FirstName @doctor.LastName</h5>
+                        <p>@doctor.Specialty</p>
+                        <p>@doctor.HospitalName</p>
+                        <button class="btn book-nowbtn" @onclick="() => ViewDoctor(doctor.Id)">Book Now</button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No doctors found matching your search criteria.</p>
+    }
+</div>
+@code {
+    [Parameter]
+    public string? name { get; set; }
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+    private List<Doctors> doctors;
+    private string searchQuery = string.Empty;
+    private IEnumerable<Doctors> FilteredDoctors => string.IsNullOrWhiteSpace(searchQuery)
+    ? doctors
+    : doctors.Where(d =>
+    (d.FirstName + " " + d.LastName).Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+    d.Specialty.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+    d.HospitalName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDoctors();
+
+        // Extract the search query from the URL
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("search", out var queryValue))
+        {
+            searchQuery = queryValue.ToString();
+        }
+    }
+
+    private async Task LoadDoctors()
+    {
+        try
+        {
+            // Fetch all doctors
+            var allDoctors = await JS.InvokeAsync<List<Doctors>>("getDoctors");
+
+            // Filter doctors by hospital name
+            if (!string.IsNullOrEmpty(name))
+            {
+                doctors = allDoctors.Where(d =>
+                !string.IsNullOrEmpty(d.HospitalId) &&
+                string.Equals(d.HospitalId, name, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else
+            {
+                doctors = allDoctors;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading doctors: {ex.Message}");
+        }
+    }
+
+    private void ViewDoctor(string id)
+    {
+        _navigation.NavigateTo($"/doctors/doctor/{id}");
+    }
+
+    private void Search()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            // Navigate to the doctors page with the search query as a parameter
+            _navigation.NavigateTo($"/doctors?search={Uri.EscapeDataString(searchQuery)}");
+        }
+        else
+        {
+            // If the search query is empty, just reload the page without the search query
+            _navigation.NavigateTo("/doctors");
+        }
+    }
+}

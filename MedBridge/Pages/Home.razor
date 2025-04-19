@@ -1,0 +1,91 @@
+@page "/"
+@inject IJSRuntime JS
+@using MedBridge.Model
+@inject NavigationManager _navigation
+
+<div class="home">
+    <h1>Home Page</h1>
+    <h6 class="date">Today's Date: @currentDate</h6>
+
+    <h3> Book Your Appointment</h3>
+    <div class="homePage">
+        <p>MedBridge is your ultimate healthcare companion! Seamlessly connect with trusted doctors, clinics, and
+            hospitals all in one place. <br> Your health, made simple.</p>
+        <button class="cta" @onclick="navigate">
+            <span class="hover-underline-animation"> Book Now </span>
+            <svg id="arrow-horizontal" xmlns="http://www.w3.org/2000/svg" width="30" height="10" viewBox="0 0 46 16">
+                <path id="Path_10" data-name="Path 10"
+                    d="M8,0,6.545,1.455l5.506,5.506H-30V9.039H12.052L6.545,14.545,8,16l8-8Z" transform="translate(30)">
+                </path>
+            </svg>
+        </button>
+    </div>
+
+
+
+    <h3>Hospitals</h3>
+
+    <div class="hospital-container">
+        @if (hospitals != null && hospitals.Any())
+        {
+            @foreach (var hospital in hospitals)
+            {
+                <div class="hospital-card">
+                    <label class="hospital-label">@hospital.HospitalName</label>
+                    <button @onclick="() =>navigateToDoctors(hospital.Id)"
+                        style="border: none; background: none; padding: 0; font: inherit; cursor: pointer;">
+                        <img src="@hospital.Link" alt="@hospital.HospitalName" class="hospital-img" />
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Loading hospitals...</p>
+        }
+    </div>
+
+    <div class="reminderbar">
+        <div>
+            <h5>Upcoming Appointments</h5>
+        </div>
+        <div class="ApptTime">
+            <h5>January 30,2024</h5>
+        </div>
+        <div>
+            <h6>Consultation with Dr. Ahmad</h6>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+    private List<Hospital> hospitals;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHospitals();
+    }
+
+    private async Task LoadHospitals()
+    {
+        try
+        {
+            hospitals = await JS.InvokeAsync<List<Hospital>>("getHospitals");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading hospitals: {ex.Message}");
+        }
+    }
+
+    private void navigateToDoctors(string filter)
+    {
+        _navigation.NavigateTo($"/doctors/{filter}");
+    }
+
+    private void navigate()
+    {
+        _navigation.NavigateTo($"/doctors");
+    }
+}

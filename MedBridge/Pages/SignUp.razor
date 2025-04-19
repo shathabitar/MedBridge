@@ -1,0 +1,145 @@
+@page "/register"
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@using MedBridge.Model
+@using System.Text.Json
+
+<h1>Register</h1>
+<h6 class="date">Today's Date: @currentDate</h6>
+@code {
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+}
+
+<h3> Welcome Back!</h3>
+<p>Login to continue</p>
+
+
+<EditForm Model="@user" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    @* <ValidationSummary /> *@
+    <div class="wave-group">
+        <label for="firstName">First Name</label>
+        <InputText id="firstName" @bind-Value="user.FirstName" class="form-control input" />
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <InputText id="lastName" @bind-Value="user.LastName" class="form-control input" />
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="user.Email" class="form-control input" type="email" />
+    </div>
+    <div class="mydict">
+        <label for="gender">Gender</label>
+        <div></div>
+        <InputRadioGroup @bind-Value="user.Gender" class="radio-inputs input">
+            <label class="radio">
+                <InputRadio Value="Gender.Male" />
+                <span>Male</span>
+            </label>
+            <label class="radio">
+                <InputRadio Value="Gender.Female" />
+                <span>Female</span>
+            </label>
+        </InputRadioGroup>
+    </div>
+
+    <div class="form-group">
+        <label for="insurance">Insurance</label>
+        <div></div>
+        <InputSelect @bind-Value="user.InsuranceId"
+            class="bg-gray-100 text-gray-900 rounded-md mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150 input"
+            id="insurance">
+            @if (insurances?.Any() == true)
+            {
+                @foreach (var insurance in insurances)
+                {
+                    <option value="@insurance.Id">@insurance.Name</option>
+                }
+            }
+            else
+            {
+                <option disabled>No insurance available</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="DOB">Date of Birth</label>
+        <div></div>
+        <InputDate class="bg-gray-100 text-gray-900 rounded-md p-2 input" id="age" @bind-Value="user.DOB" />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" @bind-Value="user.Password" class="form-control input" type="password" />
+    </div>
+    <div class="form-actions">
+        <button class="register-button">Sign Up</button>
+        <p style="margin-left: auto;
+    align-self: flex-end;
+        padding-left: 1rem;">Already have an account?<a href="/login" class="RegisterRedirect">Login</a></p>
+    </div>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private User user = new User { };
+    private List<Insurance> insurances = new List<Insurance>();
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            insurances = await JS.InvokeAsync<List<Insurance>>("getInsurance");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading hospitals: {ex.Message}");
+        }
+
+    }
+
+    private async Task HandleRegister()
+    {
+        // Log the user object to see if all properties are populated
+        Console.WriteLine($"User data before JS call: {JsonSerializer.Serialize(user)}");
+
+        try
+        {
+            // First, register the user in Firebase Authentication and get the UID
+            var userId = await JS.InvokeAsync<string>("signUp", user.Email, user.Password);
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Assign the UID to the user object
+                user.Id = userId;
+
+                // Serialize the user object and send it to Firestore
+                string serializedUser = JsonSerializer.Serialize(user);
+                Console.WriteLine($"Serialized user: {serializedUser}");
+                await JS.InvokeVoidAsync("addUser", JsonSerializer.Deserialize<JsonElement>(serializedUser));
+
+
+                Console.WriteLine($"User registered with UID: {userId}");
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = "Failed to retrieve user ID from Firebase Authentication.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Registration failed. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+}

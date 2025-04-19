@@ -1,0 +1,53 @@
+﻿@* @page "/doctors/doctor/{id}" *@
+@using MedBridge.Model
+@inject NavigationManager _navigation
+@inject IJSRuntime JS
+<h3>DoctorDetails</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3 class="d-inline">Hotel details - Basic </h3>
+    </div>
+    <div class="col-md-6 text-end"><button class="d-inline btn btn-primary" @onclick="BackToList">Back</button></div>
+</div>
+
+@if (doctorModel == null)
+{
+    <h1>No details found</h1>
+}
+else
+{
+    <div class=" container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-5 ">
+                <div class="image-container">
+                    <img src="https://www.fluentu.com/blog/learn/photo-translator-app/">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">@doctorModel.FirstName</h5>
+                    <p class="card-text">@doctorModel.LastName</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+
+@code {
+    private Doctors doctorModel;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        doctorModel = await JS.InvokeAsync<Doctors>("getDoctorById", Id);
+    }
+
+    private void BackToList()
+    {
+        _navigation.NavigateTo("/doctors");
+    }
+}

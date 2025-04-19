@@ -1,0 +1,115 @@
+@page "/doctors/doctor/{id}/history4"
+@using MedBridge.Model
+@inject NavigationManager _navigation
+@inject IJSRuntime JS
+@using MedBridge.Services;
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using System.Text.Json
+
+@inject SymptomService SymptomService
+
+<h1>History</h1>
+<h6 class="date">Today's Date: @currentDate</h6>
+
+
+@code {
+    private string currentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+}
+
+<div class="col-md-6 text-end backbtn"><button @onclick="BackToList">
+        <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+            <path
+                d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z">
+            </path>
+        </svg>
+        <span>Back</span>
+    </button>
+</div>
+
+<h3>How bad are your symptoms?</h3>
+
+<div class="badSymp">
+    <div class="radio-inputSym">
+        <InputRadioGroup @bind-Value="symptom.Severity">
+            <label>
+                <InputRadio Value="Severity.one" />
+                <span>1</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.two" />
+                <span>2</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.three" />
+                <span>3</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.four" />
+                <span>4</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.five" />
+                <span>5</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.six" />
+                <span>6</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.seven" />
+                <span>7</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.eight" />
+                <span>8</span>
+            </label>
+            <label>
+                <InputRadio Value="Severity.nine" />
+                <span>9</span>
+            </label><label>
+                <InputRadio Value="Severity.ten" />
+                <span>10</span>
+            </label>
+        </InputRadioGroup>
+        <span class="selection"></span>
+    </div>
+    <div class="description">
+        <p>Mild</p>
+        <p>Unbearable</p>
+    </div>
+</div>
+
+<div class="col-md-6 text-end backbtn next fixed-button-container">
+    <button @onclick="SubmitHistory" class="next-btn">
+        <span>Next</span>
+        <img width="20" height="20" src="https://img.icons8.com/ios/50/121212/long-arrow-right--v1.png"
+            alt="long-arrow-right--v1" />
+        <path fill="black"
+            d="M25 35.5C24.1716 35.5 23.5 36.1716 23.5 37C23.5 37.8284 24.1716 38.5 25 38.5V35.5ZM49.0607 38.0607C49.6464 37.4749 49.6464 36.5251 49.0607 35.9393L39.5147 26.3934C38.9289 25.8076 37.9792 25.8076 37.3934 26.3934C36.8076 26.9792 36.8076 27.9289 37.3934 28.5147L45.8787 37L37.3934 45.4853C36.8076 46.0711 36.8076 47.0208 37.3934 47.6066C37.9792 48.1924 38.9289 48.1924 39.5147 47.6066L49.0607 38.0607ZM25 38.5L48 38.5V35.5L25 35.5V38.5Z">
+        </path>
+    </button>
+</div>
+
+
+
+@code {
+
+    private Symptom symptom = new Symptom();
+    [Parameter]
+    public string Id { get; set; } // Symptom ID from the URL
+
+    protected override void OnInitialized()
+    {
+        symptom = SymptomService.CurrentSymptom;
+    }
+
+    private void BackToList()
+    {
+        _navigation.NavigateTo($"/doctors/doctor/{Id}/history2");
+    }
+
+    private async Task SubmitHistory()
+    {
+        _navigation.NavigateTo($"/doctors/doctor/{Id}");
+    }
+}

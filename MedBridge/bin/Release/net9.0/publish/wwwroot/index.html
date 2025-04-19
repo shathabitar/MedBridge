@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedBridge</title>
+    <base href="/MedBridge/" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="MedBridge.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+
+    import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        addDoc,
+        getDocs,
+        getDoc,
+        updateDoc,
+        deleteDoc,
+        doc,
+        setDoc,
+        Timestamp 
+    }
+        from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFJ8p9QeCd7qAg-13w-3IBDRAql8OrCuU",
+        authDomain: "medbridge-3c162.firebaseapp.com",
+        projectId: "medbridge-3c162",
+        storageBucket: "medbridge-3c162.firebasestorage.app",
+        messagingSenderId: "637970481469",
+        appId: "1:637970481469:web:325aff837dd0a843794554",
+        measurementId: "G-HMQYFLBGHD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.signIn = async (email, password) => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Store the Firebase UID in localStorage
+            localStorage.setItem("UserID", user.uid);
+
+            console.log("User signed in:", user);
+            return user; // Return the user object
+        } catch (error) {
+            console.error("Error signing in:", error);
+            throw error;
+        }
+    };
+
+
+    window.signUp = async (email, password) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            return user.uid;  // Return the user ID (UID)
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    };
+
+
+    window.signOut = async () => {
+        try {
+            await signOut(auth);
+            console.log("User signed out");
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    window.getDoctors = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "Doctors"));
+            if (querySnapshot.empty) {
+                console.log("No doctors found.");
+                return [];
+            }
+            let dataArray = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                FirstName: doc.get("FirstName"),
+                LastName: doc.get("LastName"),
+                Specialty: doc.get("Specialty"),
+                InsuranceId: doc.get("InsuranceId"),
+                HospitalId: doc.get("HospitalId"),
+                HospitalName: doc.get("HospitalName"),
+                Image: doc.get("Image")
+            }));
+            console.log("Mapped Doctor Data: ", dataArray);
+            return dataArray;
+        } catch (error) {
+            console.error("Error fetching doctors: ", error);
+            return [];
+        }
+    };
+
+    window.getDoctorsByHospitalId = async (hospitalId) => {
+        try {
+            // Reference the Doctors collection
+            const doctorsRef = collection(db, "Doctors");
+
+            // Create a query to filter doctors by HospitalName
+            const q = query(doctorsRef, where("HospitalId", "==", hospitalId));
+
+            // Execute the query
+            const querySnapshot = await getDocs(q);
+
+            // Check if the query returned any results
+            if (querySnapshot.empty) {
+                console.log(`No doctors found for hospital: ${hospitalId}`);
+                return [];
+            }
+
+            // Map the results to an array
+            const doctors = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                FirstName: doc.get("FirstName"),
+                LastName: doc.get("LastName"),
+                Specialty: doc.get("Specialty"),
+                InsuranceId: doc.get("InsuranceId"),
+                HospitalId: doc.get("HospitalId"),
+                HospitalName: doc.get("HospitalName"),
+                Image: doc.get("Image")
+            }));
+
+            console.log("Doctors for hospital: ", hospitalName, doctors);
+            return doctors;
+        } catch (error) {
+            console.error("Error fetching doctors by hospital name: ", error);
+            return [];
+        }
+    };
+
+
+
+    window.getDoctorById = async (id) => {
+        const docRef = doc(db, "Doctors", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            const result = {
+                id: id,
+                FirstName: docSnap.data().FirstName,
+                LastName: docSnap.data().LastName,
+                Specialty: docSnap.data().Specialty,
+                InsuranceId: docSnap.data().insuranceId,
+                HospitalId: docSnap.data().HospitalId,
+                Image: docSnap.data().Image
+            }
+            return result;
+        } else {
+            console.log("No such document");
+        }
+    };
+
+    window.getPatientSymptoms = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "PatientSymptom"));
+            if (querySnapshot.empty) {
+                console.log("No symtpoms found.");
+                return [];
+            }
+            let dataArray = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                SymptomName: doc.get("SymptomName")
+            }));
+            console.log("Mapped Doctor Data: ", dataArray);
+            return dataArray;
+        } catch (error) {
+            console.error("Error fetching doctors: ", error);
+            return [];
+        }
+    };
+
+    window.updateDoctor = async (doctor) => {
+        try {
+            await updateDoc(doc(db, "Doctors", doctor.id), {
+                FirstName: doctor.FirstName,
+                LastName: doctor.LastName
+            });
+            console.log("Document with ID", doctor.id, "update successfully.");
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
+    window.deleteDoctor = async (id) => {
+        try {
+            const confirmation = confirm("Are you sure you want to delete ?");
+            if (confirmation) {
+                await deleteDoc(doc(db, "Doctors", id));
+                console.log("Document with ID", id, "deleted successfully.");
+            }
+        } catch (e) {
+            console.error("Error deleting document: ", e);
+        }
+
+    }
+
+
+    window.getAppointmentsForDoctor = async (doctorId) => {
+        const q = query(
+            collection(db, "Appointments"),
+            where("doctorId", "==", doctorId)
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    };
+
+        window.getHospitals = async () => {
+            return [
+                { Id: "9QxpVYNbwpPYZu13Tdn2", HospitalName: "Islamic Hospital", Link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVDyZzB3AQr9nQY1ENCQWtlZqBDox8gtEIp2RLp5N_1dDgtkqbWQpXqIRXCVJ0xqHQxbY&usqp=CAU" },
+                { Id: "AvArk4v5i7JBcUAn2x9R", HospitalName: "Specialty Hospital", Link: "https://www.specialty-hospital.com/uploads/images/setting/logo1.png" },
+                { Id: "D8sDvQO2PDLcn3vzvc1v", HospitalName: "Al Khalidi Hospital", Link: "https://media.licdn.com/dms/image/v2/D4D0BAQGXXV5VD2taAg/company-logo_200_200/company-logo_200_200/0/1690781519915/khmc_logo?e=2147483647&v=beta&t=LJxsU0miY0gPt5Viw6h4YbvhYS_YwymOxqG_p0bcEZ0" },
+                { Id: "uQYObndNhU4dHA2wYCD9", HospitalName: "Abdali Hospital", Link: "https://secure.b8cdn.com/images/logo/72/2018672_logo_1544352360_n.png" },
+            ];
+        };
+
+    window.getPatientById = async (id) => {
+        const docRef = doc(db, "Users", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            const result = {
+                id: id,
+                FirstName: docSnap.data().FirstName,
+                LastName: docSnap.data().LastName,
+                Gender: docSnap.data().Gender,
+                DOB: docSnap.data().DOB && typeof docSnap.data().DOB.toDate === "function" ? docSnap.data().DOB.toDate() : null, 
+                InsuranceId: docSnap.data().InsuranceId,
+                Email: docSnap.data().Email
+            }
+            return result;
+        } else {
+            console.log("No such document");
+        }
+    };
+    
+
+    window.addUser = async (user) => {
+    console.log("Received user object:", user);  // Ensure properties are correctly received
+
+    if (!user.Id) {
+        console.error("User ID is undefined or null", user);
+        return;
+    }
+
+    try {
+        // Use the user ID from Firebase Authentication as the document ID
+        const docRef = await setDoc(doc(db, "Users", user.Id), {
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            Email: user.Email,
+            Gender: user.Gender,
+            DOB: user.DOB,
+            InsuranceId: user.InsuranceId,
+            dateTime: user.dateTime
+        });
+        console.log("Document written with ID: ", user.UserID);
+    } catch (error) {
+        console.error("Error adding document: ", error);
+    }
+};
+
+
+
+
+    window.getAppointmentsByDoctorId = async (doctorId) => {
+        const appointmentsRef = collection(db, "Appointments");
+        const q = query(appointmentsRef, where("DoctorId", "==", doctorId));
+        const querySnapshot = await getDocs(q);
+        const appointments = [];
+
+        querySnapshot.forEach((doc) => {
+            const appointmentData = doc.data();
+            console.log("Raw appointment data:", appointmentData); // Log data to debug
+
+            let appointmentDate = null;
+
+            // Ensure AppointmentDate exists and is a Firestore Timestamp
+            if (appointmentData.AppointmentDate) {
+                if (appointmentData.AppointmentDate instanceof Timestamp) {
+                    appointmentDate = appointmentData.AppointmentDate.toDate();
+                } else {
+                    console.warn(`Unexpected AppointmentDate format:`, appointmentData.AppointmentDate);
+                }
+            }
+
+            const appointment = {
+                id: doc.id,
+                DoctorId: appointmentData.DoctorId,
+                AppointmentDate: appointmentDate, // Safely assigned
+                PatientId: appointmentData.PatientId,
+                HospitalId: appointmentData.HospitalId,
+                Booked: appointmentData.Booked
+            };
+
+            appointments.push(appointment);
+        });
+
+        return appointments;
+    };
+
+
+
+    window.addPatientHistory = async (history) => {
+        console.log("User history:", history);
+        try {
+            const docRef = await addDoc(collection(db, "PatientHistory"), {
+                PatientId: history.PatientId,
+                Smoker: history.Smoker,
+                Injury: history.Injury,
+                Pregnant: history.Pregnant,
+                Hypertension: history.Hypertension,
+                WeightLoss: history.WeightLoss,
+                WeightGain: history.WeightGain,
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (error) {
+            console.error("Error adding document: ", error);
+        }
+    };
+
+
+    window.updateAppointment = async (appointment) => {
+        console.log("Received appointment:", appointment);
+
+        try {
+            const docRef = doc(db, "Appointments", appointment.id);
+            // Validate required fields
+            if (!appointment.PatientId || appointment.Booked === undefined) {
+                console.error("Missing required fields:", {
+                    PatientId: appointment.PatientId,
+                    Booked: appointment.Booked,
+                });
+                return;
+            }
+
+            // Update the document in Firestore
+            await updateDoc(docRef, {
+                PatientId: appointment.PatientId,
+                Booked: appointment.Booked,
+            });
+
+            console.log("Appointment updated successfully in Firestore");
+        } catch (e) {
+            console.error("Error updating appointment in Firestore:", e);
+        }
+    };
+
+
+    window.addSymptom = async (symptoms) => {
+            console.log("Received Symptoms:", symptoms);
+
+            // Validate incoming data structure
+            if (!Array.isArray(symptoms)) {
+                console.error("Invalid symptoms data format. Expected an array.");
+                return;
+            }// Ensure Firebase is initialized
+            // const symptomsCollection = collection(db, "Symptoms");
+
+            try {
+                // Iterate through the symptoms and add them to Firestore
+                for (const symptom of symptoms) {
+                    if (!symptom.PatientId || !symptom.Name) {
+                        console.error("Invalid symptom:", symptom);
+                        continue; // Skip invalid symptoms
+                    }
+
+                    // Firestore document structure
+                    const symptomData = {
+                        PatientId: symptom.PatientId,
+                        Name: symptom.Name,
+                        Severity: symptom.Severity || null, // Optional field
+                        Duration: symptom.Duration || null, // Optional field
+                    };
+
+                    // Add to Firestore
+                    const docRef = await addDoc(collection(db, "Symptoms"),symptomData);
+                    console.log(`Symptom added with ID: ${docRef.id}`);
+                }
+
+                console.log("All valid symptoms have been added successfully.");
+            } catch (error) {
+                console.error("Error adding symptoms to Firestore:", error);
+            }
+        };
+
+    window.updateSymptom = async (symptom) => {
+        console.log("Received symptom:", symptom);
+
+        try {
+            const docRef = doc(db, "Symptoms", symptom.id);
+            // Validate required fields
+            if (!symptom.id) {
+                console.error("Missing required fields:", {
+                    PatientId: symptom.PatientId,
+                    Name: symptom.Name,
+                    Severity: symptom.Severity,
+                    Duration: symptom.Duration,
+                });
+                return;
+            }
+
+            // Update the document in Firestore
+            await updateDoc(docRef, {
+                Severity: symptom.Severity,
+                Duration: symptom.Duration,
+            });
+
+            console.log("Symptom updated successfully in Firestore");
+        } catch (e) {
+            console.error("Error updating symptom in Firestore:", e);
+        }
+    };
+
+    window.getTransferbyPatientId = async (patientId) => {
+        const transferRef = collection(db, "Transfer");
+        const q = query(transferRef, where("PatientId", "==", patientId));
+        const querySnapshot = await getDocs(q);
+
+        let transfer = null;
+
+        querySnapshot.forEach((doc) => {
+            const TransferData = doc.data();
+            transfer = {
+                id: doc.id,
+                PatientId: TransferData.PatientId,
+                OriginalDoctorId: TransferData.OriginalDoctorId,
+                DoctorId: TransferData.DoctorId,
+                HospitalId: TransferData.HospitalId,
+                Date: TransferData.Date,
+                Status: TransferData.Status
+            };
+        });
+
+        return transfer;
+    };
+
+    window.getVisitByPatientId = async (patientId) => {
+        const visitRef = collection(db, "Visit");
+        const q = query(visitRef, where("PatientId", "==", patientId));
+        const querySnapshot = await getDocs(q);
+
+        let visit = null;
+
+        querySnapshot.forEach((doc) => {
+            const VisitData = doc.data();
+            visit = {
+                id: doc.id,
+                PatientId: VisitData.PatientId,
+                MainComplaint: VisitData.MainComplaint,
+                Duration: VisitData.Duration,
+                Status: VisitData.Status,
+                PresentSymptoms: VisitData.PresentSymptoms,
+                OtherConditions: VisitData.OtherConditions,
+                Diagnosis: VisitData.Diagnosis,
+                Prescription: VisitData.Prescription,
+                LabOrders: VisitData.LabOrders,
+                XRayOrders: VisitData.XRayOrders,
+                HospitalTransfers: VisitData.HospitalTransfers,
+                DoctorTransfers: VisitData.DoctorTransfers,
+                TransferId: VisitData.TransferId,
+                AppointmentId: VisitData.AppointmentId
+            };
+        });
+
+        return visit;
+    };
+
+    window.getAllAppointmentsByPatientId = async (patientId) => {
+        const appointmentsRef = collection(db, "Appointments");
+        const q = query(appointmentsRef, where("PatientId", "==", patientId));
+        const querySnapshot = await getDocs(q);
+        const appointments = [];
+
+        for (const doc of querySnapshot.docs) {
+            const appointmentData = doc.data();
+            const appointmentDate = appointmentData.AppointmentDate.toDate();
+
+            const appointment = {
+                id: doc.id,
+                DoctorId: appointmentData.DoctorId,
+                DoctorSpecialty: appointmentData.DoctorSpecialty,
+                AppointmentDate: appointmentDate,
+                PatientId: appointmentData.PatientId,
+                HospitalId: appointmentData.HospitalId,
+                Booked: appointmentData.Booked,
+                transfer: appointmentData.transfer
+            };
+
+            appointments.push(appointment);
+        }
+
+        return appointments; 
+    };
+
+
+    window.getHospitalNameById = async (hospitalId) => {
+        console.log("getHospitalNameById called with ID:", hospitalId);
+        try {
+            const hospitalsRef = collection(db, "Hospitals");
+            const q = query(hospitalsRef, where("Id", "==", hospitalId));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                console.warn(`No hospital found with ID: ${hospitalId}`);
+                return null;
+            }
+
+            const doc = querySnapshot.docs[0];
+            const hospitalData = doc.data();
+
+            return hospitalData.HospitalName || "Unknown Hospital";
+        } catch (error) {
+            console.error("Error fetching hospital name:", error);
+            return null;
+        }
+    };
+
+
+    window.getInsurance = async () => {
+        return [
+            { Id: "u9ZheVad2bk9tp2IggiY", Name: "Solidarity" },
+            { Id: "wtKBcnTkr38DyLgjVMc6", Name: "NatHealth" },
+            { Id: "xNvPSItfvt4HcPMRT70Y", Name: "GIG" },
+        ];
+    };
+
+    window.getInsuranceById = async (id) => {
+        if (!id) {
+            console.error("Insurance ID is null or undefined");
+            return null;  // Or handle this case appropriately
+        }
+
+        const docRef = doc(db, "Insurance", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            return { id: id, Name: docSnap.data().Name };
+        } else {
+            console.log("No such document");
+            return null;
+        }
+    };
+
+</script>
+
+</html>

@@ -1,0 +1,91 @@
+﻿@page "/doctors/createdoc/"
+@page "/doctors/createdoc/{Id}"
+@using MedBridge.Model
+@inject NavigationManager _navigation
+<h3>CRUDdoctors</h3>
+
+@inject IJSRuntime JS
+
+<EditForm Model="doctors" OnValidSubmit="AddUpdateDoctor">
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <InputText id="FirstName" @bind-Value="doctors.FirstName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="LastName">Last Name</label>
+        <InputText id="LastName" @bind-Value="doctors.LastName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">@(!string.IsNullOrWhiteSpace(Id) ? "Update" : "Create")</button>
+</EditForm>
+
+
+@code {
+    private Doctors doctors = new Doctors();
+
+    [Parameter]
+    public string? Id { get; set; }
+    protected override void OnParametersSet()
+    {
+        LoadDoctor();
+        base.OnParametersSet();
+    }
+    private async Task AddUpdateDoctor()
+    {
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            await JS.InvokeVoidAsync("updateDoctor", doctors);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("addDoctor", doctors);
+        }
+        _navigation.NavigateTo("/doctors");
+    }
+
+    private async void LoadDoctor()
+    {
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            doctors = await JS.InvokeAsync<Doctors>("getDoctorById", Id);
+        }
+        else
+        {
+            doctors = new Doctors();
+        }
+        StateHasChanged();
+    }
+}
+    @* private async Task ViewContact(string id)
+    {
+        var doctor = await JS.InvokeAsync<Doctors>("viewDoctor", id);
+        // Handle the retrieved doctor data (e.g., show a modal or navigate to another page)
+        Console.WriteLine($"Viewing doctor: {doctor.firstName} {doctor.lastName}");
+    }
+
+    private async Task EditContact(string id)
+    {
+        var updatedData = new
+        {
+            first_name = "UpdatedFirstName",
+            last_name = "UpdatedLastName"
+        };
+
+        var success = await JS.InvokeAsync<bool>("editDoctor", id, updatedData);
+        if (success)
+        {
+            await LoadDoctors(); // Reload the list to reflect changes
+            Console.WriteLine("Doctor updated successfully");
+        }
+    }
+
+    private async Task Delete(string id)
+    {
+        var success = await JS.InvokeAsync<bool>("deleteDoctor", id);
+        if (success)
+        {
+            await LoadDoctors(); // Reload the list to reflect changes
+            Console.WriteLine("Doctor deleted successfully");
+        }
+    }
+
+} *@
